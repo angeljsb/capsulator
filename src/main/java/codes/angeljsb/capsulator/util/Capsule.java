@@ -5,6 +5,8 @@
  */
 package codes.angeljsb.capsulator.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 /**
@@ -17,7 +19,7 @@ import java.util.function.Consumer;
 public class Capsule<T> {
 
     private T content = null;
-    private Consumer<T> onChange = null;
+    private ArrayList<Consumer<T>> changeListeners = new ArrayList();
 
     /**
      * Devuelve el contenido de la capsula
@@ -40,33 +42,76 @@ public class Capsule<T> {
             this.dispatchChange();
         }
     }
-
+    
     /**
-     * Devuelve el objeto con la función que se activa al cambiar el contenido
-     * de la capsula
-     *
-     * @return El evento
+     * Añade un agente de escucha que será ejecutado al cambiar el 
+     * contenido de la capsula
+     * 
+     * @param listener El agente de escucha
      */
-    public Consumer<T> getOnChange() {
-        return onChange;
+    public void addChangeListener(Consumer<T> listener) {
+        this.changeListeners.add(listener);
     }
-
+    
     /**
-     * Cambia el evento que se activa al cambiar el contenido de la capsula
-     *
-     * @param onChange El nuevo evento a activar
+     * Añade varios agentes de escucha que serán ejecutados al cambiar el
+     * contenido de la capsula
+     * 
+     * @param listeners Los agentes de escucha
      */
-    public void setOnChange(Consumer<T> onChange) {
-        this.onChange = onChange;
+    public void addChangeListeners(Consumer<T>... listeners) {
+        for(Consumer<T> listener : listeners){
+            addChangeListener(listener);
+        }
+    }
+    
+    /**
+     * Añade varios agentes de escucha que serán ejecutados al cambiar el
+     * contenido de la capsula
+     * 
+     * @param listeners Los agentes de escucha
+     */
+    public void addChangeListeners(Collection<Consumer<T>> listeners) {
+        this.changeListeners.addAll(listeners);
+    }
+    
+    /**
+     * Remueve un agente de escucha para que deje de ejecutarse al cambiar
+     * el contenido de la capsula
+     * 
+     * @param listener El agente de escucha
+     */
+    public void removeChangeListener(Consumer<T> listener) {
+        this.changeListeners.remove(listener);
+    }
+    
+    /**
+     * Remueve los agentes de escucha para que dejen de ejecutarse al cambiar
+     * el contenido de la capsula
+     * 
+     * @param listeners los agentes de escucha a remover
+     */
+    public void removeAllChangeListeners(Collection<Consumer<T>> listeners) {
+        this.changeListeners.removeAll(listeners);
+    }
+    
+    /**
+     * Remueve todos los agentes que están actualmente a la
+     * escucha de esta capsula
+     */
+    public void removeAllChangeListeners() {
+        this.changeListeners.clear();
     }
 
     /**
      * Activa el evento onChange
      */
     public void dispatchChange() {
-        if (this.onChange != null) {
-            this.onChange.accept(this.content);
-        }
+        this.changeListeners.forEach(this::execChangeListener);
+    }
+    
+    private void execChangeListener(Consumer<T> listener) {
+        listener.accept(this.getContent());
     }
 
 }
