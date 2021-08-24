@@ -115,6 +115,17 @@ public class ImageFile implements ReadableFile<BufferedImage> {
             this.resizeToHeight(max);
         }
     }
+    
+    /**
+     * Rota la imagén contenida en la cantidad de grados especificada
+     * en la dirección de las agujas del reloj.
+     * Si no hay imagén contenida, carga la del archivo y la rota
+     * 
+     * @param degrees La cantidad de grados a rotar
+     */
+    public void rotate(int degrees) {
+        this.setContent(ImageLoader.rotate(this.get(), degrees));
+    }
 
     /**
      * Función que obtiene un objeto painter y mediante este pinta algo en la

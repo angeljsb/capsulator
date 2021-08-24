@@ -15,6 +15,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import codes.angeljsb.capsulator.BaseFile;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 
 /**
  * Clase con metodos estaticos para aplicar operaciones pesadas a imagenes.
@@ -170,5 +172,29 @@ public class ImageLoader {
             ex.printStackTrace(System.err);
         }
         return new Dimension(0, 0);
+    }
+    
+    /**
+     * Rota una imagen la cantidad de grados especificada en la dirección de
+     * las agujas del reloj
+     * 
+     * @param image La imagen a rotar
+     * @param degres Los grados a rotar la imagen
+     * @return La imagén rotada
+     */
+    public static BufferedImage rotate(BufferedImage image, int degres) {
+        final double rads = Math.toRadians(degres);
+        final double sin = Math.abs(Math.sin(rads));
+        final double cos = Math.abs(Math.cos(rads));
+        final int w = (int) Math.floor(image.getWidth() * cos + image.getHeight() * sin);
+        final int h = (int) Math.floor(image.getHeight() * cos + image.getWidth() * sin);
+        final BufferedImage rotatedImage = new BufferedImage(w, h, image.getType());
+        final AffineTransform at = new AffineTransform();
+        at.translate(w / 2, h / 2);
+        at.rotate(rads,0, 0);
+        at.translate(-image.getWidth() / 2, -image.getHeight() / 2);
+        final AffineTransformOp rotateOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        rotateOp.filter(image,rotatedImage);
+        return rotatedImage;
     }
 }
